@@ -1,21 +1,36 @@
-#include "robot.h"
-#include "utils.h"
-#include <cmath>
+#include "utils.hpp"
 
-void setChassisBrakes(const pros::motor_brake_mode_e brakeMode) // makes it easier to set the mode of all of the chassis motor's brakes at once
-{
-  robot::LF.set_brake_mode(brakeMode);
-	robot::LB.set_brake_mode(brakeMode);
-	robot::RF.set_brake_mode(brakeMode);
-	robot::RB.set_brake_mode(brakeMode);
+double threshold_normalize(const double& input, const std::uint8_t& threshold) {
+	return input;
+	if(input > threshold) {
+		return input - threshold;
+	} else if(input < -threshold) {
+		return input + threshold;
+	} else {
+		return 0;
+	}
 }
 
-void setChassisVelocity(double straight, double strafe, double turn) // set the motor velocities based on the straight, strafe, and turn parts
+void set_brakes(const pros::motor_brake_mode_e& brakeMode) {
+    robot::motor_lf.set_brake_mode(brakeMode);
+	robot::motor_lb.set_brake_mode(brakeMode);
+	robot::motor_rf.set_brake_mode(brakeMode);
+	robot::motor_rb.set_brake_mode(brakeMode);
+}
+
+// https://www.youtube.com/watch?v=v7CujEW0wgc  
+void set_velocity(const double& straight, const double& strafe, const double& rotate) {
+	  robot::motor_lf.move_velocity((straight + strafe - rotate) * 200 / 127);
+    robot::motor_rf.move_velocity((-straight + strafe - rotate) * 200 / 127);
+  	robot::motor_lb.move_velocity((straight - strafe - rotate) * 200 / 127);
+  	robot::motor_rb.move_velocity((-straight - strafe - rotate) * 200 / 127);
+}
+
+void reset_encoders()
 {
-  robot::LF.move_velocity((straight + strafe + turn) * 1.575); // 1.575 is 200/127
-  robot::LB.move_velocity((straight - strafe + turn) * 1.575);
-  robot::RF.move_velocity((-straight + strafe + turn) * 1.575);
-  robot::RB.move_velocity((-straight - strafe + turn) * 1.575);
+  robot::encoder_b.reset_position();
+  robot::encoder_l.reset_position();
+  robot::encoder_r.reset_position();
 }
 
 double round_to_digits(double value, int digits)
@@ -41,11 +56,4 @@ double decimalMod(double value, double base)
     }
   }
   return value;
-}
-
-void reset_encoders()
-{
-  robot::Bencoder.reset_position();
-  robot::Lencoder.reset_position();
-  robot::Rencoder.reset_position();
 }

@@ -1,23 +1,27 @@
-#include "robot.h"
+#include "robot.hpp"
 
 pros::Controller robot::master (pros::E_CONTROLLER_MASTER);
 
-pros::Motor robot::LF(3, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            robot::LB(17, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            robot::RF(9, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            robot::RB(18, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            robot::flyWheel(21, MOTOR_GEARSET_6, 1, MOTOR_ENCODER_COUNTS),
-            robot::flyWheel2(10, MOTOR_GEARSET_6, 0, MOTOR_ENCODER_COUNTS);
+pros::Motor robot::motor_lf(5, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
+            robot::motor_lb(17, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
+            robot::motor_rf(1, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
+            robot::motor_rb(19, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
+            robot::fourbar_l(12, MOTOR_GEARSET_36, 1, MOTOR_ENCODER_COUNTS), // cable for 11 may be bad
+            robot::fourbar_r(15, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
+            robot::frontclaw(3, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
+            robot::intake(14, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
+            robot::goofyArm(3, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS);
 
-pros::ADIDigitalIn robot::buttonDown('a'),
-                   robot::buttonSelect('b');
+pros::ADIDigitalOut robot::piston_front_claw('B'),
+                    robot::piston_back_claw('H');     //piston_back_lift?
+                 //we DONT NEED THEM ANYMORE?????  - jeff FUCK OFF JEFF
 
-pros::ADIDigitalOut robot::puncher('h');
+pros::Rotation robot::encoder_l(13),
+               robot::encoder_r(8),
+               robot::encoder_b(16);
 
-pros::Rotation robot::Lencoder(13),
-               robot::Rencoder(12),
-               robot::Bencoder(20);
+double robot::encoder_diameter(3.25),
+       robot::side_encoder_r(6.82367),
+       robot::back_encoder_r(4);
 
-pros::IMU robot::imu(10);
-
-pros::Vision robot::flywheelCam(5);
+pros::IMU robot::imu(13);
