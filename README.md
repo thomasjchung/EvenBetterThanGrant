@@ -1,2 +1,1 @@
-# EvenBetterThanGrant
-VEX Robotics 22-23
+# SPIN UP!
