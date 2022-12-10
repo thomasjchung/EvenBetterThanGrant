@@ -88,55 +88,34 @@ void autonomous() {
 	robot::piston_front_claw.set_value(false);
 	robot::piston_back_claw.set_value(false);
 	if (autonomous_control == 0){
-		robot::goofyArm.move_velocity(100);   //arm moves down
-		set_velocity(-200,0,0);   //robot starts moving toward goal
+
+		//turning the roller
+		robot::intake.move_velocity(100);
 		pros::delay(400);
-		robot::goofyArm.move_velocity(0);
-		robot::goofyArm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+		robot::intake.move_velocity(0);
+		robot::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 		pros::delay(420);
-		set_velocity(0,0,0);
-		set_brakes(pros::E_MOTOR_BRAKE_COAST);
 
-		pros::delay(400);   //get there and stop
-
-		robot::goofyArm.move_velocity(-100);   //arm moves slightly up to hook
-		pros::delay(250);  
-		set_velocity(200,0,0);   					//moves back towards ramp
-		robot::goofyArm.move_velocity(0);
-		robot::goofyArm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-		pros::delay(700);
-		set_velocity(0,0,0);
-		set_brakes(pros::E_MOTOR_BRAKE_COAST);
-
-		pros::delay(1000);  		//get there and stop (hopefully with goal)
-
-		robot::goofyArm.move_velocity(100);  		//arm moves down a little)
-		pros::delay(50);
-		robot::goofyArm.move_velocity(0);
-		robot::goofyArm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-		pros::delay(400);
-
-		set_velocity(50, 0, 0);  		//robot moves forward a little
-		pros::delay(30);
-		set_brakes(pros::E_MOTOR_BRAKE_BRAKE);
-
-		robot::goofyArm.move_velocity(-100);      //arm goes back up
-		pros::delay(400);
-		robot::goofyArm.move_velocity(0);
-		robot::goofyArm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-		pros::delay(400);
-
-		set_velocity(0,0, -90);   //rotate?
+		//turn
+		set_velocity(0,0,-90);
 		pros::delay(150);
 		set_brakes(pros::E_MOTOR_BRAKE_BRAKE);
-		
+		pros::delay(500);
+
+		//move towards goal
+		set_velocity(-200,0,0);
+		pros::delay(1200);
+		set_velocity(0,0,0);
+		set_brakes(pros::E_MOTOR_BRAKE_COAST);
+
+		//empty rings from basket
+		robot::basket.move_velocity(100);
+		pros::delay(400);
+		robot::basket.move_velocity(0);
+		robot::basket.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
 
 		
-
-
-
-
 	}
 
 }
@@ -161,55 +140,49 @@ void opcontrol() {
 	set_brakes(pros::E_MOTOR_BRAKE_COAST);
 
 	std::int32_t fourbar_speed{}, fourbar_max_speed{200}, fourbar_acceleration{50};
-	std::int32_t intake_speed{}, intake_max_speed{200}, intake_acceleration{100};
-	std::int32_t goofyArm_speed{}, goofyArm_max_speed{45}, goofyArm_acceleration{10};
+	std::int32_t basket_speed{}, basket_max_speed{200}, basket_acceleration{100};
+	std::int32_t intake_speed{}, intake_max_speed{50}, intake_acceleration{10};
+	std::int32_t expansion_speed{}, expansion_max_speed{200}, expansion_acceleration{10};
 	bool is_overheating{}, piston_front_claw_state{}, piston_back_claw_state{}; //piston_back_lift_state?
 	
 	while (true) {
-		set_velocity(-threshold_normalize(robot::master.get_analog(ANALOG_LEFT_Y)),
-						0,
-					 -threshold_normalize(-robot::master.get_analog(ANALOG_RIGHT_X)));
+		set_velocity(robot::master.get_analog(ANALOG_LEFT_Y),
+					0, (-.5 * robot::master.get_analog(ANALOG_RIGHT_X)));
 
-		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-			if(fourbar_speed < fourbar_max_speed) {
-				fourbar_speed = std::min(fourbar_max_speed, fourbar_speed + fourbar_acceleration);
+		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+			if(basket_speed > -basket_max_speed) {
+				basket_speed = std::max(-basket_max_speed, basket_speed - basket_acceleration);
 			}
-			robot::fourbar_l.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::fourbar_r.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::fourbar_l.move_velocity(fourbar_speed);
-			robot::fourbar_r.move_velocity(fourbar_speed);
-		} else if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-			if(fourbar_speed > -fourbar_max_speed) {
-				fourbar_speed = std::max(-fourbar_max_speed, fourbar_speed - fourbar_acceleration);
+			robot::basket.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::basket.move_velocity(basket_speed);
+		} else if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+			if(basket_speed < basket_max_speed) {
+				basket_speed = std::min(basket_max_speed, basket_speed + basket_acceleration);
 			}
-			robot::fourbar_l.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::fourbar_r.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::fourbar_l.move_velocity(fourbar_speed);
-			robot::fourbar_r.move_velocity(fourbar_speed);
-		} else if(fourbar_speed != 0) {
-			if(fourbar_speed > 0) {
-				fourbar_speed = std::max(fourbar_speed - fourbar_acceleration, std::int32_t{});
+			robot::basket.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::basket.move_velocity(basket_speed);
+		} else if(basket_speed != 0) {
+			if(basket_speed > 0) {
+				basket_speed = std::max(basket_speed - basket_acceleration, std::int32_t{});
 			} else {
-				fourbar_speed = std::min(fourbar_speed + fourbar_acceleration, std::int32_t{});
+				basket_speed = std::min(basket_speed + basket_acceleration, std::int32_t{});
 			}
-			robot::fourbar_l.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::fourbar_r.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::fourbar_l.move_velocity(fourbar_speed);
-			robot::fourbar_r.move_velocity(fourbar_speed);
+			robot::basket.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::basket.move_velocity(basket_speed);
 		} else {
-			robot::fourbar_l.move_velocity(fourbar_speed);
-			robot::fourbar_r.move_velocity(fourbar_speed);
-			robot::fourbar_l.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-			robot::fourbar_r.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			robot::basket.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			robot::basket.move_velocity(basket_speed);
 		}
 
-		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+
+
+		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
 			if(intake_speed < intake_max_speed) {
 				intake_speed = std::min(intake_max_speed, intake_speed + intake_acceleration);
 			}
 			robot::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 			robot::intake.move_velocity(intake_speed);
-		} else if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+		} else if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
 			if(intake_speed > -intake_max_speed) {
 				intake_speed = std::max(-intake_max_speed, intake_speed - intake_acceleration);
 			}
@@ -227,6 +200,7 @@ void opcontrol() {
 			robot::intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 			robot::intake.move_velocity(intake_speed);
 		}
+		
 		
 		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && pros::millis() - lastFCtoggle > 750) {     //pros::E_CONTROLLER_DIGITAL_UP
 			lastFCtoggle = pros::millis();
@@ -248,28 +222,25 @@ void opcontrol() {
 		*/
 		
 		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-			if(goofyArm_speed < goofyArm_max_speed) {
-				goofyArm_speed = std::min(goofyArm_max_speed, goofyArm_speed + goofyArm_acceleration);
-			}
-			robot::goofyArm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::goofyArm.move_velocity(goofyArm_speed);
+			robot::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::expansion.move_velocity(expansion_max_speed);
 		} else if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
-			if(goofyArm_speed > -goofyArm_max_speed) {
-				goofyArm_speed = std::max(-goofyArm_max_speed, goofyArm_speed - goofyArm_acceleration);
+			if(expansion_speed > -expansion_max_speed) {
+				expansion_speed = std::max(-expansion_max_speed, expansion_speed - expansion_acceleration);
 			}
-			robot::goofyArm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::goofyArm.move_velocity(goofyArm_speed);
-		} else if(goofyArm_speed != 0) {
-			if(goofyArm_speed > 0) {
-				goofyArm_speed = std::max(goofyArm_speed - goofyArm_acceleration, std::int32_t{});
+			robot::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::expansion.move_velocity(expansion_speed);
+		} else if(expansion_speed != 0) {
+			if(expansion_speed > 0) {
+				expansion_speed = std::max(expansion_speed - expansion_acceleration, std::int32_t{});
 			} else {
-				goofyArm_speed = std::min(goofyArm_speed + goofyArm_acceleration, std::int32_t{});
+				expansion_speed = std::min(expansion_speed + expansion_acceleration, std::int32_t{});
 			}
-			robot::goofyArm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::goofyArm.move_velocity(goofyArm_speed);
+			robot::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::expansion.move_velocity(expansion_speed);
 		} else {
-			robot::goofyArm.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-			robot::goofyArm.move_velocity(goofyArm_speed);
+			robot::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+			robot::expansion.move_velocity(expansion_speed);
 		}
 
 		/*
@@ -292,6 +263,7 @@ void opcontrol() {
 		} else {
 			is_overheating = false;
 		}
+
 
 		pros::delay(30);
 	}
