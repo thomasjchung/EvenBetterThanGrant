@@ -85,38 +85,61 @@ int autonomous_control = 0;
 // 4 middle right
 // 5 skills
 void autonomous() {
-	robot::piston_front_claw.set_value(false);
-	robot::piston_back_claw.set_value(false);
-	if (autonomous_control == 0){
 
+	// robot::piston_front_claw.set_value(false);
+	// robot::piston_back_claw.set_value(false);
+	if (autonomous_control == 0){
+		
+		set_velocity(30,0,0);
+		
 		//turning the roller
-		robot::intake.move_velocity(100);
-		pros::delay(400);
+		robot::intake.move_velocity(-100);
+		pros::delay(350);
+		set_velocity(0,0,0);
+		set_brakes(pros::E_MOTOR_BRAKE_BRAKE);
+		pros::delay(200);
+		
 		robot::intake.move_velocity(0);
 		robot::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-		pros::delay(420);
+
+		pros::delay(420); //420 lmfao :rofl: 
+
+		//move back a little?
+		set_velocity(-30,0,0);
+		pros::delay(40);
+		set_brakes(pros::E_MOTOR_BRAKE_BRAKE);
+		pros::delay(500);
 
 		//turn
-		set_velocity(0,0,-90);
-		pros::delay(150);
+		set_velocity(0,0,-45);
+		pros::delay(110);
 		set_brakes(pros::E_MOTOR_BRAKE_BRAKE);
 		pros::delay(500);
 
 		//move towards goal
 		set_velocity(-200,0,0);
-		pros::delay(1200);
+		pros::delay(1600);
 		set_velocity(0,0,0);
-		set_brakes(pros::E_MOTOR_BRAKE_COAST);
+		set_brakes(pros::E_MOTOR_BRAKE_BRAKE);
+		pros::delay(1000);
+
 
 		//empty rings from basket
-		robot::basket.move_velocity(100);
-		pros::delay(400);
+		robot::basket.move_velocity(-100);
+		pros::delay(3000);
 		robot::basket.move_velocity(0);
 		robot::basket.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
+		pros::delay(200);
 
-		
+		set_velocity(200,0,0);
+		pros::delay(500);
+		set_velocity(0,0,0);
+		set_brakes(pros::E_MOTOR_BRAKE_BRAKE);
+		pros::delay(500);
+	
 	}
+
 
 }
 
@@ -141,13 +164,13 @@ void opcontrol() {
 
 	std::int32_t fourbar_speed{}, fourbar_max_speed{200}, fourbar_acceleration{50};
 	std::int32_t basket_speed{}, basket_max_speed{200}, basket_acceleration{100};
-	std::int32_t intake_speed{}, intake_max_speed{50}, intake_acceleration{10};
+	std::int32_t intake_speed{}, intake_max_speed{500}, intake_acceleration{100};
 	std::int32_t expansion_speed{}, expansion_max_speed{200}, expansion_acceleration{10};
 	bool is_overheating{}, piston_front_claw_state{}, piston_back_claw_state{}; //piston_back_lift_state?
 	
 	while (true) {
 		set_velocity(robot::master.get_analog(ANALOG_LEFT_Y),
-					0, (-.5 * robot::master.get_analog(ANALOG_RIGHT_X)));
+					0, (-robot::master.get_analog(ANALOG_RIGHT_X)));
 
 		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
 			if(basket_speed > -basket_max_speed) {
@@ -177,17 +200,11 @@ void opcontrol() {
 
 
 		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-			if(intake_speed < intake_max_speed) {
-				intake_speed = std::min(intake_max_speed, intake_speed + intake_acceleration);
-			}
 			robot::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::intake.move_velocity(intake_speed);
+			robot::intake.move_velocity(-intake_max_speed);
 		} else if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-			if(intake_speed > -intake_max_speed) {
-				intake_speed = std::max(-intake_max_speed, intake_speed - intake_acceleration);
-			}
 			robot::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::intake.move_velocity(intake_speed);
+			robot::intake.move_velocity(intake_max_speed);
 		} else if(intake_speed != 0) {
 			if(intake_speed > 0) {
 				intake_speed = std::max(intake_speed - intake_acceleration, std::int32_t{});
@@ -225,11 +242,8 @@ void opcontrol() {
 			robot::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 			robot::expansion.move_velocity(expansion_max_speed);
 		} else if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
-			if(expansion_speed > -expansion_max_speed) {
-				expansion_speed = std::max(-expansion_max_speed, expansion_speed - expansion_acceleration);
-			}
 			robot::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::expansion.move_velocity(expansion_speed);
+			robot::expansion.move_velocity(-expansion_max_speed);
 		} else if(expansion_speed != 0) {
 			if(expansion_speed > 0) {
 				expansion_speed = std::max(expansion_speed - expansion_acceleration, std::int32_t{});

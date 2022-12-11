@@ -12,7 +12,7 @@ double threshold_normalize(const double& input, const std::uint8_t& threshold) {
 }
 
 void set_brakes(const pros::motor_brake_mode_e& brakeMode) {
-    robot::motor_lf.set_brake_mode(brakeMode);
+  robot::motor_lf.set_brake_mode(brakeMode);
 	robot::motor_lb.set_brake_mode(brakeMode);
 	robot::motor_rf.set_brake_mode(brakeMode);
 	robot::motor_rb.set_brake_mode(brakeMode);
