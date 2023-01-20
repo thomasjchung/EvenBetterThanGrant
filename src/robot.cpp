@@ -6,10 +6,10 @@ pros::Motor robot::motor_lf(5, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
             robot::motor_lb(18, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
             robot::motor_rf(1, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
             robot::motor_rb(19, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            robot::fourbar_l(14, MOTOR_GEARSET_36, 1, MOTOR_ENCODER_COUNTS), // cable for 11 may be bad
-            robot::fourbar_r(15, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
+            robot::launcher_f(12, MOTOR_GEARSET_6, 0, MOTOR_ENCODER_COUNTS), // cable for 11 may be bad
+            robot::launcher_c(19, MOTOR_GEARSET_6, 0, MOTOR_ENCODER_COUNTS),
             robot::basket(16, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
-            robot::intake(12, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
+            robot::intake(11, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
             robot::expansion(17, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS);
 
 pros::ADIDigitalOut robot::piston_front_claw('B'),

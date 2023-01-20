@@ -79,15 +79,9 @@ void right()
 }
 
 int autonomous_control = 0;
-// 1 two left
-// 2 middle left
-// 3 two right
-// 4 middle right
-// 5 skills
+
 void autonomous() {
 
-	// robot::piston_front_claw.set_value(false);
-	// robot::piston_back_claw.set_value(false);
 	if (autonomous_control == 0){
 		
 		set_velocity(30,0,0);
@@ -162,7 +156,7 @@ void opcontrol() {
 
 	set_brakes(pros::E_MOTOR_BRAKE_COAST);
 
-	std::int32_t fourbar_speed{}, fourbar_max_speed{200}, fourbar_acceleration{50};
+	std::int32_t launcher_speed{}, launcher_max_speed{10000}, launcher_acceleration{50};
 	std::int32_t basket_speed{}, basket_max_speed{200}, basket_acceleration{100};
 	std::int32_t intake_speed{}, intake_max_speed{500}, intake_acceleration{100};
 	std::int32_t expansion_speed{}, expansion_max_speed{200}, expansion_acceleration{10};
@@ -196,7 +190,6 @@ void opcontrol() {
 			robot::basket.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 			robot::basket.move_velocity(basket_speed);
 		}
-
 
 
 		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
@@ -239,8 +232,12 @@ void opcontrol() {
 		*/
 		
 		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-			robot::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::expansion.move_velocity(expansion_max_speed);
+			robot::launcher_c.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::launcher_f.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+
+			robot::launcher_c.move_velocity(launcher_max_speed);
+			robot::launcher_f.move_velocity(-launcher_max_speed);
+
 		} else if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
 			robot::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 			robot::expansion.move_velocity(-expansion_max_speed);

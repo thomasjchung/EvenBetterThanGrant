@@ -20,7 +20,7 @@ double PID::tick(double error)
   if(error == 0)
   {
     return 0;
-  }
+  } 
   double errorDerivative = (error - priorError);
   integral += ((error + priorError) / 2);
   double speed = (kP * error) + ((ticks != 0) ? (kI * integral) + (kD * errorDerivative) : 0);
