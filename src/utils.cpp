@@ -20,10 +20,10 @@ void set_brakes(const pros::motor_brake_mode_e& brakeMode) {
 
 // https://www.youtube.com/watch?v=v7CujEW0wgc  
 void set_velocity(const double& straight, const double& strafe, const double& rotate) {
-	  robot::motor_lf.move_velocity((straight + strafe - rotate) * 200 / 127);
-    robot::motor_rf.move_velocity((-straight + strafe - rotate) * 200 / 127);
-  	robot::motor_lb.move_velocity((straight - strafe - rotate) * 200 / 127);
-  	robot::motor_rb.move_velocity((-straight - strafe - rotate) * 200 / 127);
+	  robot::motor_lf.move_velocity(-(straight + strafe - rotate) * 200 / 127);
+    robot::motor_rf.move_velocity(-(-straight + strafe - rotate) * 200 / 127);
+  	robot::motor_lb.move_velocity(-(straight - strafe - rotate) * 200 / 127);
+  	robot::motor_rb.move_velocity(-(-straight - strafe - rotate) * 200 / 127);
 }
 
 void reset_encoders()

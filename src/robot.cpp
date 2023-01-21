@@ -2,17 +2,17 @@
 
 pros::Controller robot::master (pros::E_CONTROLLER_MASTER);
 
-pros::Motor robot::motor_lf(5, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            robot::motor_lb(18, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            robot::motor_rf(1, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
-            robot::motor_rb(19, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
+pros::Motor robot::motor_lf(16, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
+            robot::motor_lb(13, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
+            robot::motor_rf(4, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
+            robot::motor_rb(18, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS),
             robot::launcher_f(12, MOTOR_GEARSET_6, 0, MOTOR_ENCODER_COUNTS), // cable for 11 may be bad
             robot::launcher_c(19, MOTOR_GEARSET_6, 0, MOTOR_ENCODER_COUNTS),
-            robot::basket(16, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
-            robot::intake(11, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
+            robot::basket(5, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
+            robot::intake(20, MOTOR_GEARSET_36, 0, MOTOR_ENCODER_COUNTS),
             robot::expansion(17, MOTOR_GEARSET_18, 0, MOTOR_ENCODER_COUNTS);
 
-pros::ADIDigitalOut robot::piston_front_claw('B'),
+pros::ADIDigitalOut robot::piston_shooter('B'),
                     robot::piston_back_claw('H');     //piston_back_lift?
                  //we DONT NEED THEM ANYMORE?????  - jeff FUCK OFF JEFF
 
