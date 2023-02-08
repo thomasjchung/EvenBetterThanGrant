@@ -17,8 +17,8 @@ void odometry_function(void* parameter) {
 
 void initialize() {
 	pros::lcd::initialize();
-	robot::piston_shooter.set_value(false);
-	robot::piston_back_claw.set_value(false);
+	robot::piston_expansion.set_value(false);
+	robot::piston_launcher.set_value(true);
 
 	robot::encoder_l.reset();
 	robot::encoder_r.reset();
@@ -54,16 +54,16 @@ void right()
 {
   sketch.reset();
   pros::Task move(drive1);
-  robot::piston_back_claw.set_value(true);
+  robot::piston_launcher.set_value(true);
   move.remove();
   set_velocity(-100,0,0);
   pros::delay(1000);
-  robot::piston_shooter.set_value(true);
+  robot::piston_expansion.set_value(true);
   std::vector<std::pair<double,double>> path = {std::make_pair(1000,0),std::make_pair(500,0)};
   sketch.driveAlong(path, 0, 100, 12);
   std::cout << sketch.robotX << " " << sketch.robotY << std::endl;
   sketch.turn(M_PI / (-4), 5);
-  robot::piston_shooter.set_value(false);
+  robot::piston_expansion.set_value(false);
   path = {std::make_pair(500,0),std::make_pair(400,-100)};
   sketch.driveAlong(path, 0, 100, 12);
   sketch.turn(M_PI * 0.18, 7);
@@ -72,7 +72,7 @@ void right()
 
   move2.remove();
   pros::delay(250);
-  robot::piston_shooter.set_value(true);
+  robot::piston_expansion.set_value(true);
   pros::delay(250);
   path = {std::make_pair(1750,1000),std::make_pair(400,-100)};
   sketch.driveAlong(path, M_PI * 0.15, 100, 12);
@@ -153,8 +153,8 @@ void autonomous() {
 
 
 void opcontrol() {
-	int lastFCtoggle = 0;
-	int lastBCtoggle = 0;
+	int lastPLtoggle = 0;
+	int lastPEtoggle = 0;
 	bool launcher_on = false;
 	bool previously_pressed = false;
 
@@ -164,11 +164,11 @@ void opcontrol() {
 	std::int32_t basket_speed{}, basket_max_speed{200}, basket_acceleration{100};
 	std::int32_t intake_speed{}, intake_max_speed{500}, intake_acceleration{100};
 	std::int32_t expansion_speed{}, expansion_max_speed{200}, expansion_acceleration{10};
-	bool is_overheating{}, piston_shooter_state{}, piston_back_claw_state{}; //piston_back_lift_state?
+	bool is_overheating{}, piston_expansion_state{}, piston_launcher_state{}; //piston_back_lift_state?
 	
 	while (true) {
 		set_velocity(robot::master.get_analog(ANALOG_LEFT_Y),
-					0, -(robot::master.get_analog(ANALOG_RIGHT_X)));
+					0, -(.9*robot::master.get_analog(ANALOG_RIGHT_X)));
 
 		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
 			if(basket_speed > -basket_max_speed) {
@@ -216,19 +216,19 @@ void opcontrol() {
 		}
 		
 		
-		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && pros::millis() - lastFCtoggle > 750) {     //pros::E_CONTROLLER_DIGITAL_UP
-			lastFCtoggle = pros::millis();
-			piston_shooter_state = !piston_shooter_state;
-			robot::piston_shooter.set_value(piston_shooter_state);
+		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && pros::millis() - lastPEtoggle > 750) {     //pros::E_CONTROLLER_DIGITAL_UP
+			lastPEtoggle = pros::millis();
+			piston_expansion_state = !piston_expansion_state;
+			robot::piston_expansion.set_value(piston_expansion_state);
 		}
 
-		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && pros::millis() - lastBCtoggle > 750) {
-			lastBCtoggle = pros::millis();
-			piston_back_claw_state = !piston_back_claw_state;
-			robot::piston_back_claw.set_value(piston_back_claw_state);
+		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && pros::millis() - lastPLtoggle > 750) {
+			lastPLtoggle = pros::millis();
+			piston_launcher_state = !piston_launcher_state;
+			robot::piston_launcher.set_value(piston_launcher_state);
 		}
 
-
+		/*
 		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
 			if(!previously_pressed){
 				launcher_on = !launcher_on;
@@ -240,12 +240,26 @@ void opcontrol() {
 		}
 
 		if(launcher_on){
-			robot::launcher_c.move_velocity(launcher_max_speed);
-			robot::launcher_f.move_velocity(launcher_max_speed);
+			if(launcher_speed > -launcher_max_speed) {
+				launcher_speed = std::max(-launcher_max_speed, launcher_speed - launcher_acceleration);
+			}
+			robot::launcher.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::launcher.move_velocity(-launcher_speed);		}
+		else{
+			robot::launcher.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+		}
+		*/
+
+		if(robot::master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
+			if(launcher_speed > -launcher_max_speed){
+				launcher_speed = std::max(-launcher_max_speed, launcher_speed - launcher_acceleration);
+			}
+			robot::launcher.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::launcher.move_velocity(launcher_speed);
 		}
 		else{
-			robot::launcher_c.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-			robot::launcher_f.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+			robot::launcher.move_velocity(0);
+			robot::launcher.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 		}
 		
 

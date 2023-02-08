@@ -14,16 +14,21 @@ double threshold_normalize(const double& input, const std::uint8_t& threshold) {
 void set_brakes(const pros::motor_brake_mode_e& brakeMode) {
   robot::motor_lf.set_brake_mode(brakeMode);
 	robot::motor_lb.set_brake_mode(brakeMode);
+  robot::motor_lm.set_brake_mode(brakeMode);
 	robot::motor_rf.set_brake_mode(brakeMode);
 	robot::motor_rb.set_brake_mode(brakeMode);
+  robot::motor_rm.set_brake_mode(brakeMode);
 }
 
 // https://www.youtube.com/watch?v=v7CujEW0wgc  
 void set_velocity(const double& straight, const double& strafe, const double& rotate) {
 	  robot::motor_lf.move_velocity(-(straight + strafe - rotate) * 200 / 127);
+    robot::motor_lb.move_velocity(-(straight + strafe - rotate) * 200 / 127);
+    robot::motor_lm.move_velocity((straight - strafe - rotate) * 200 / 127);
+
     robot::motor_rf.move_velocity(-(-straight + strafe - rotate) * 200 / 127);
-  	robot::motor_lb.move_velocity(-(straight - strafe - rotate) * 200 / 127);
-  	robot::motor_rb.move_velocity(-(-straight - strafe - rotate) * 200 / 127);
+  	robot::motor_rb.move_velocity(-(-straight + strafe - rotate) * 200 / 127);
+    robot::motor_rm.move_velocity((-straight - strafe - rotate) * 200 / 127);
 }
 
 void reset_encoders()
